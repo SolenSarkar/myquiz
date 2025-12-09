@@ -1,0 +1,39 @@
+type User @table {
+  username: String!
+  email: String
+  avatarUrl: String
+  createdAt: Timestamp!
+}
+
+type Category @table {
+  name: String!
+  description: String!
+}
+
+type Quiz @table {
+  category: Category
+  title: String!
+  description: String
+  difficulty: String!
+  imageUrl: String
+  createdAt: Timestamp!
+}
+
+type Question @table {
+  quiz: Quiz
+  text: String!
+  imageUrl: String
+  correctAnswer: String!
+}
+
+type Option @table {
+  question: Question
+  text: String!
+}
+
+type QuizAttempt @table {
+  user: User
+  quiz: Quiz
+  score: Int!
+  completedAt: Timestamp!
+}

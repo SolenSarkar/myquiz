@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Admin Dashboard — MyQuiz</title>
+  <link rel="stylesheet" href="./css/admin.css">
+</head>
+<body>
+  <header class="navbar">
+    <div class="nav-left">
+      <a class="brand" href="#">MyQuiz Admin</a>
+      <nav class="nav-links">
+        <a href="#home">Home</a>
+        <a href="#edit">Edit</a>
+        <a href="#scores">Scores</a>
+      </nav>
+    </div>
+    <div class="nav-right">
+      <button id="admin-action" class="btn">Loading...</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero" id="home">
+      <h1>Welcome, Admin</h1>
+      <p>Use the links in the navigation to manage quizzes and view scores.</p>
+      <div class="actions">
+        <a class="primary" href="#edit">Go to Edit</a>
+        <a class="secondary" href="#scores">View Scores</a>
+      </div>
+    </section>
+
+    <section class="cards" id="edit">
+      <div class="card">
+        <h3>Create / Edit Quizzes</h3>
+        <p>Manage quizzes, add questions, and configure timing.</p>
+        <a class="btn-link" href="#">Open Editor</a>
+      </div>
+      <div class="card">
+        <h3>Manage Users</h3>
+        <p>Invite or remove admin users and adjust roles.</p>
+        <a class="btn-link" href="#">Manage Users</a>
+      </div>
+      <div class="card" id="scores">
+        <h3>Leaderboard & Scores</h3>
+        <p>Review player scores and export leaderboard data.</p>
+        <a class="btn-link" href="#">View Scores</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <small>© MyQuiz — Admin Panel</small>
+  </footer>
+  <script>
+    // Require a session flag set during admin login. If absent, redirect to admin-index.
+    (function(){
+      try{
+        const ok = sessionStorage.getItem('myquiz_admin_auth') === '1'
+        if(!ok){
+          // not authenticated — go back to admin login page
+          window.location.href = '/admin-index.html'
+        }
+      }catch(e){
+        window.location.href = '/admin-index.html'
+      }
+
+    // expose a sign-out action in the header
+    try{
+      const btn = document.getElementById('admin-action')
+      if(btn){
+        btn.textContent = 'Sign Out'
+        btn.addEventListener('click', ()=>{
+          try{ sessionStorage.removeItem('myquiz_admin_auth') }catch(e){}
+          window.location.href = '/'
+        })
+      }
+    }catch(e){}
+    })()
+  </script>
+  <script src="./js/admin.js"></script>
+</body>
+</html>

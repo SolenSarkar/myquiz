@@ -1,0 +1,98 @@
+mutation CreateSeedData @auth(level: PUBLIC, insecureReason: "This operation is used to seed the database with initial data, and does not contain any sensitive information or operations. It is safe to expose to the public.") @transaction {
+  category_insertMany(data: [
+    {
+      id: "550e8400-e29b-41d4-a716-446655440000",
+      name: "Science",
+      description: "Quizzes about scientific topics"
+    },
+    {
+      id: "550e8400-e29b-41d4-a716-446655440001",
+      name: "History",
+      description: "Quizzes about historical events"
+    }
+  ])
+  user_insertMany(data: [
+    {
+      id: "550e8400-e29b-41d4-a716-446655440002",
+      username: "demouser1",
+      email: "demouser1@example.com",
+      createdAt: "2024-01-01T00:00:00Z"
+    },
+    {
+      id: "550e8400-e29b-41d4-a716-446655440003",
+      username: "demouser2",
+      email: "demouser2@example.com",
+      createdAt: "2024-01-02T00:00:00Z"
+    }
+  ])
+  quiz_insertMany(data: [
+    {
+      id: "550e8400-e29b-41d4-a716-446655440004",
+      categoryId: "550e8400-e29b-41d4-a716-446655440000",
+      title: "General Science Quiz",
+      description: "A quiz covering various science topics",
+      difficulty: "Easy",
+      createdAt: "2024-01-03T00:00:00Z"
+    },
+    {
+      id: "550e8400-e29b-41d4-a716-446655440005",
+      categoryId: "550e8400-e29b-41d4-a716-446655440001",
+      title: "World War II Quiz",
+      description: "A quiz about the events of World War II",
+      difficulty: "Medium",
+      createdAt: "2024-01-04T00:00:00Z"
+    }
+  ])
+  question_insertMany(data: [
+    {
+      id: "550e8400-e29b-41d4-a716-446655440006",
+      quizId: "550e8400-e29b-41d4-a716-446655440004",
+      text: "What is the chemical symbol for water?",
+      correctAnswer: "H2O"
+    },
+    {
+      id: "550e8400-e29b-41d4-a716-446655440007",
+      quizId: "550e8400-e29b-41d4-a716-446655440005",
+      text: "When did World War II begin?",
+      correctAnswer: "1939"
+    }
+  ])
+  option_insertMany(data: [
+    {
+      id: "550e8400-e29b-41d4-a716-446655440008",
+      questionId: "550e8400-e29b-41d4-a716-446655440006",
+      text: "H2O"
+    },
+    {
+      id: "550e8400-e29b-41d4-a716-446655440009",
+      questionId: "550e8400-e29b-41d4-a716-446655440006",
+      text: "CO2"
+    },
+    {
+      id: "550e8400-e29b-41d4-a716-446655440010",
+      questionId: "550e8400-e29b-41d4-a716-446655440007",
+      text: "1939"
+    },
+    {
+      id: "550e8400-e29b-41d4-a716-446655440011",
+      questionId: "550e8400-e29b-41d4-a716-446655440007",
+      text: "1941"
+    }
+  ])
+  quizAttempt_insertMany(data: [
+    {
+      id: "550e8400-e29b-41d4-a716-446655440012",
+      quizId: "550e8400-e29b-41d4-a716-446655440004",
+      userId: "550e8400-e29b-41d4-a716-446655440002",
+      completedAt: "2024-01-05T00:00:00Z",
+      score: 75
+    },
+    {
+      id: "550e8400-e29b-41d4-a716-446655440013",
+      quizId: "550e8400-e29b-41d4-a716-446655440005",
+      userId: "550e8400-e29b-41d4-a716-446655440003",
+      completedAt: "2024-01-06T00:00:00Z",
+      score: 80
+    }
+  ])
+}

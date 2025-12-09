@@ -1,0 +1,27 @@
+mutation AddNewCategory($name: String!, $description: String!) @auth(level: USER) {
+  category_insert(data: { name: $name, description: $description })
+}
+
+query ListQuizzesByCategory($categoryId: UUID!) @auth(level: PUBLIC, insecureReason: "This operation is safe to expose to the public") {
+  quizzes(where: { categoryId: { eq: $categoryId } }) {
+    id
+    title
+    description
+    difficulty
+  }
+}
+
+mutation CreateQuizAttempt($quizId: UUID!, $score: Int!) @auth(level: USER) {
+  quizAttempt_insert(data: { quizId: $quizId, userId_expr: "auth.uid", completedAt_expr: "request.time", score: $score })
+}
+
+query GetUserQuizAttempts @auth(level: USER) {
+  quizAttempts(where: { userId_expr: "auth.uid" }) {
+    id
+    quiz {
+      title
+    }
+    completedAt
+    score
+  }
+}
