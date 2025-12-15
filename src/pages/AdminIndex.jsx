@@ -1,14 +1,14 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import client from '../api'
 import '../admin/css/admin.css'
+
 export default function AdminIndex() {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
-
-  const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || 'admin@example.com'
-  const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'admin123'
+  const [loading, setLoading] = useState(false)
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -19,17 +19,28 @@ export default function AdminIndex() {
       return
     }
 
-    // Validate credentials against env values
-    if (email.trim().toLowerCase() === ADMIN_EMAIL.toLowerCase() && password === ADMIN_PASSWORD) {
-      try {
+    setLoading(true)
+    
+    try {
+      // Authenticate with backend API
+      const response = await client.post('/auth/admin-login', { email, password })
+      
+      if (response.data && response.data.authenticated) {
+        // Store JWT token and auth flag
+        sessionStorage.setItem('admin_token', response.data.token)
         sessionStorage.setItem('myquiz_admin_auth', '1')
-      } catch (e) {
-        console.error(e)
+        sessionStorage.setItem('admin_email', response.data.email)
+        
+        // Navigate to admin dashboard
+        navigate('/admin-dashboard')
+      } else {
+        setError('Invalid credentials')
       }
-      // Navigate to admin dashboard
-      navigate('/admin-dashboard')
-    } else {
-      setError('Invalid credentials')
+    } catch (err) {
+      console.error('Admin login error:', err)
+      setError(err.response?.data?.error || 'Failed to authenticate. Please check your credentials.')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -100,13 +111,14 @@ export default function AdminIndex() {
               <button
                 type="submit"
                 className="btn-primary"
-                style={{ width: '30%', marginTop: 8, }}
+                style={{ width: '30%', marginTop: 8 }}
+                disabled={loading}
               >
-                Sign In
+                {loading ? 'Signing In...' : 'Sign In'}
               </button>
 
               <div style={{ fontSize: 12, color: 'var(--muted-2)', marginTop: 8 }}>
-                This form validates credentials from your environment configuration.
+                Authentication is handled securely via the backend API.
               </div>
             </form>
           </aside>

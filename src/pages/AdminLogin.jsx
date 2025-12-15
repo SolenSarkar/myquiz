@@ -1,31 +1,22 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import client from '../api'
 
 export default function AdminLogin({ show = false, onClose = () => {} }) {
+  const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [authenticated, setAuthenticated] = useState(false)
 
-  const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || 'admin@example.com'
-  const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'admin123'
-  const ADMIN_PANEL_URL = import.meta.env.VITE_ADMIN_PANEL_URL || (import.meta.env.VITE_API_BASE ? `${import.meta.env.VITE_API_BASE.replace(/\/$/, '')}../admin-dashboard.html` : '../admin-dashboard.html')
-
   function openAdminPanel() {
-    if (!ADMIN_PANEL_URL) {
-      // No external admin panel configured — show the local confirmation UI
-      setAuthenticated(true)
-      return
-    }
-
+    // Navigate to admin dashboard in the same window
     try {
-      // open admin panel in a new tab and close modal
-      // mark session as authenticated for demo admin panel
-      try { sessionStorage.setItem('myquiz_admin_auth', '1') } catch(e){}
-      window.open(ADMIN_PANEL_URL, '_blank', 'noopener,noreferrer')
+      sessionStorage.setItem('myquiz_admin_auth', '1')
       onClose()
+      navigate('/admin-dashboard')
     } catch (e) {
-      // opening failed — fallback to showing the confirmation
+      console.error('Navigation failed:', e)
       setAuthenticated(true)
     }
   }
@@ -44,30 +35,24 @@ export default function AdminLogin({ show = false, onClose = () => {} }) {
       return
     }
 
-    //auth api call
-    client.post('/auth/admin-login', { email, password }).then((res) => {
-      if (res.data && res.data.authenticated) {
-        openAdminPanel()
-      } else {
-        setError('Invalid admin credentials')
-      }
-    }).catch(() => {
-      setError('Failed to authenticate. Please try again later.')
-    })
-
-    if (email.trim().toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
-      if (password === ADMIN_PASSWORD) {
-        setPassword('')
-        openAdminPanel()
-      } else {
-        setError('Incorrect admin password')
-        setPassword('')
-      }
-    } else {
-      setError('Invalid admin email. Please check and try again.')
-      setEmail('')
-      setPassword('')
-    }
+    // Backend API authentication
+    client.post('/auth/admin-login', { email, password })
+      .then((res) => {
+        if (res.data && res.data.authenticated) {
+          // Store JWT token for authenticated requests
+          sessionStorage.setItem('admin_token', res.data.token)
+          sessionStorage.setItem('myquiz_admin_auth', '1')
+          sessionStorage.setItem('admin_email', res.data.email)
+          setPassword('')
+          openAdminPanel()
+        } else {
+          setError('Invalid admin credentials')
+        }
+      })
+      .catch((err) => {
+        console.error('Admin login error:', err)
+        setError(err.response?.data?.error || 'Failed to authenticate. Please check your credentials.')
+      })
   }
 
   function handleLogout() {

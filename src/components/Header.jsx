@@ -1,10 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { getScores, getAllScores } from '../api'
 
 export default function Header({ user, onSignOut }) {
+  const navigate = useNavigate()
   const [open, setOpen] = useState(false)
-  const [showTable, setShowTable] = useState(false)
   const [scores, setScores] = useState([])
+  const [loadingScores, setLoadingScores] = useState(false)
+  const [usingLocalScores, setUsingLocalScores] = useState(false)
   const ref = useRef(null)
 
   useEffect(() => {
@@ -17,26 +20,52 @@ export default function Header({ user, onSignOut }) {
 
   useEffect(() => {
     if (!open) return
-    try {
-      const all = JSON.parse(localStorage.getItem('quizScores') || '[]')
-      const filtered = user && user.email ? all.filter(s => s.email === user.email) : all
-      // sort by date desc
-      filtered.sort((a, b) => new Date(b.date) - new Date(a.date))
-      setScores(filtered)
-    } catch (e) {
-      setScores([])
+    let active = true
+
+    const loadScores = async () => {
+      setLoadingScores(true)
+      setUsingLocalScores(false)
+      try {
+        const res = user && user.email ? await getScores(user.email) : await getAllScores()
+        const payload = res?.data
+        const apiScores = Array.isArray(payload)
+          ? payload
+          : Array.isArray(payload?.scores)
+            ? payload.scores
+            : Array.isArray(payload?.data)
+              ? payload.data
+              : []
+        if (!active) return
+        const sorted = [...apiScores].sort((a, b) => new Date(b.date) - new Date(a.date))
+        setScores(sorted)
+      } catch (err) {
+        if (!active) return
+        // fallback to local history when API unavailable
+        try {
+          const all = JSON.parse(localStorage.getItem('quizScores') || '[]')
+          const filtered = user && user.email ? all.filter(s => s.email === user.email) : all
+          filtered.sort((a, b) => new Date(b.date) - new Date(a.date))
+          setScores(filtered)
+          setUsingLocalScores(true)
+        } catch (e) {
+          setScores([])
+          setUsingLocalScores(true)
+        }
+      } finally {
+        if (active) setLoadingScores(false)
+      }
+    }
+
+    loadScores()
+
+    return () => {
+      active = false
     }
   }, [open, user])
 
-  function clearHistory() {
-    try {
-      const all = JSON.parse(localStorage.getItem('quizScores') || '[]')
-      const remaining = user && user.email ? all.filter(s => s.email !== user.email) : []
-      localStorage.setItem('quizScores', JSON.stringify(remaining))
-      setScores([])
-    } catch (e) {
-      console.error(e)
-    }
+  function handleShowFullHistory() {
+    setOpen(false)
+    navigate('/score-history')
   }
 
   return (
@@ -72,48 +101,29 @@ export default function Header({ user, onSignOut }) {
 
                 <div className="score-section">
                   <div className="score-header">
-                    <button className="btn small" onClick={() => setShowTable(true)} aria-label="Open full score history">Score history</button>
-                    <div style={{ display: 'flex', gap: 8 }}>
-                      <button className="btn small" onClick={clearHistory} aria-label="Clear history">Clear</button>
-                    </div>
+                    <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#e6eef8' }}>Latest Score</h4>
                   </div>
 
-                  {scores.length === 0 ? (
+                  {loadingScores ? (
+                    <div className="no-scores">Loading scores...</div>
+                  ) : scores.length === 0 ? (
                     <div className="no-scores">No score history yet.</div>
-                  ) : showTable ? (
-                    <div className="score-table-container">
-                      <table className="score-table" role="table">
-                        <thead>
-                          <tr>
-                            <th>Date</th>
-                            <th>Quiz</th>
-                            <th>Score</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {scores.map((s, i) => (
-                            <tr key={i}>
-                              <td>{new Date(s.date).toLocaleString()}</td>
-                              <td>{s.quizTitle || 'Quiz'}</td>
-                              <td>{s.score} / {s.total}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
-                        <button className="btn small" onClick={() => setShowTable(false)}>Close</button>
-                      </div>
-                    </div>
                   ) : (
-                    <div className="score-grid" role="list">
-                      {scores.map((s, i) => (
-                        <div key={i} className="score-card" role="listitem">
-                          <div className="score-title">{s.quizTitle || 'Quiz'}</div>
-                          <div className="score-value">{s.score} / {s.total}</div>
-                          <div className="score-date">{new Date(s.date).toLocaleString()}</div>
-                        </div>
-                      ))}
-                    </div>
+                    <>
+                      <div className="score-card" role="listitem" style={{ marginBottom: '12px' }}>
+                        <div className="score-title">{scores[0].quizTitle || 'Quiz'}</div>
+                        <div className="score-value">{scores[0].score} / {scores[0].total}</div>
+                        <div className="score-date">{new Date(scores[0].date).toLocaleString()}</div>
+                      </div>
+                      <button 
+                        className="btn small" 
+                        onClick={handleShowFullHistory}
+                        style={{ width: '100%', marginTop: '8px' }}
+                        aria-label="Show full score history"
+                      >
+                        Show Full History
+                      </button>
+                    </>
                   )}
                 </div>
 

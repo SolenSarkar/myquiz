@@ -1,85 +1,83 @@
-import React, { useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { auth } from '../firebase'
-import { postScore } from '../api'
+import client from '../api'
 
 export default function QuizQ3() {
   const location = useLocation()
-  const title = location?.state?.title ?? 'Sample Quiz'
-  const questions = [
-    {
-      id: 1,
-      text: 'Which language runs in a web browser?',
-      choices: ['Java', 'C', 'Python', 'JavaScript'],
-      correct: 3,
-      type: 'mc'
-    },
-    {
-      id: 2,
-      text: 'What does CSS stand for?',
-      choices: ['Cascading Style Sheets', 'Computer Style Sheets', 'Creative Style System', 'Colorful Style Syntax'],
-      correct: 0,
-      type: 'mc'
-    },
-    {
-      id: 3,
-      text: 'Which HTML element do we put the JavaScript in?',
-      choices: ['<js>', '<script>', '<javascript>', '<code>'],
-      correct: 1,
-      type: 'mc'
-    },
-    {
-      id: 4,
-      text: 'Which company developed the React library?',
-      choices: ['Google', 'Facebook (Meta)', 'Microsoft', 'Twitter'],
-      correct: 1,
-      type: 'mc'
-    },
-    {
-      id: 5,
-      text: 'Which of these is a JavaScript package manager?',
-      choices: ['npm', 'rails', 'composer', 'pip'],
-      correct: 0,
-      type: 'mc'
-    },
-    {
-      id: 6,
-      text: 'Which data structure uses LIFO ordering?',
-      choices: ['Queue', 'Stack', 'Tree', 'Graph'],
-      correct: 1,
-      type: 'mc'
-    },
-    {
-      id: 7,
-      text: 'What does HTTP stand for?',
-      choices: ['Hyper Transfer Text Protocol', 'HyperText Transfer Protocol', 'HighText Transfer Protocol', 'Hyperlink Transfer Protocol'],
-      correct: 1,
-      type: 'mc'
-    },
-    {
-      id: 8,
-      text: 'What is the chemical symbol for Gold? (text answer)',
-      correct: 'au',
-      type: 'text'
-    },
-    {
-      id: 9,
-      text: 'How many continents are there? (numeric answer)',
-      correct: 7,
-      type: 'number'
-    },
-    {
-      id: 10,
-      text: 'Who is the author of "The Great Gatsby"? (text answer)',
-      correct: 'f. scott fitzgerald',
-      type: 'text'
-    }
-  ]
-
+  const navigate = useNavigate()
+  const quizId = location?.state?.quizId
+  const title = location?.state?.title ?? 'Quiz'
+  
+  const [questions, setQuestions] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
   const [index, setIndex] = useState(0)
-  const [answers, setAnswers] = useState(Array(questions.length).fill(null))
+  const [answers, setAnswers] = useState([])
   const [finished, setFinished] = useState(false)
-  const [score, setScore] = useState(0)
+  const [showFeedback, setShowFeedback] = useState(false)
+
+  // Fetch quiz questions from backend
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      try {
+        setLoading(true)
+        const response = await client.get(`/quizzes/${quizId}`)
+        const fetchedQuestions = response.data?.questions || []
+        setQuestions(fetchedQuestions)
+        setAnswers(Array(fetchedQuestions.length).fill(null))
+      } catch (err) {
+        console.error('Failed to fetch quiz:', err)
+        setError('Failed to load quiz questions')
+        // Use fallback sample questions if quizId not provided or API fails
+        const fallbackQuestions = [
+          {
+            id: 1,
+            text: 'Which language runs in a web browser?',
+            choices: ['Java', 'C', 'Python', 'JavaScript'],
+            correct: 3,
+            type: 'mc'
+          },
+          {
+            id: 2,
+            text: 'What does CSS stand for?',
+            choices: ['Cascading Style Sheets', 'Computer Style Sheets', 'Creative Style System', 'Colorful Style Syntax'],
+            correct: 0,
+            type: 'mc'
+          },
+          {
+            id: 3,
+            text: 'Which HTML element do we put the JavaScript in?',
+            choices: ['<js>', '<script>', '<javascript>', '<code>'],
+            correct: 1,
+            type: 'mc'
+          },
+          {
+            id: 4,
+            text: 'Which company developed the React library?',
+            choices: ['Google', 'Facebook (Meta)', 'Microsoft', 'Twitter'],
+            correct: 1,
+            type: 'mc'
+          },
+          {
+            id: 5,
+            text: 'Which of these is a JavaScript package manager?',
+            choices: ['npm', 'rails', 'composer', 'pip'],
+            correct: 0,
+            type: 'mc'
+          }
+        ]
+        setQuestions(fallbackQuestions)
+        setAnswers(Array(fallbackQuestions.length).fill(null))
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (quizId) {
+      fetchQuestions()
+    }
+  }, [quizId])
 
   function selectChoice(choiceIndex) {
     const copy = answers.slice()
@@ -113,6 +111,7 @@ export default function QuizQ3() {
   async function saveResult(finalScore, total, quizTitle) {
     const payload = {
       email: auth.currentUser?.email || 'guest',
+      quizId: quizId || 'unknown',
       quizTitle,
       score: finalScore,
       total,
@@ -120,7 +119,7 @@ export default function QuizQ3() {
     }
 
     try {
-      await postScore(payload)
+      await client.post('/scores', payload)
     } catch (e) {
       try {
         const quizScores = JSON.parse(localStorage.getItem('quizScores') || '[]')
@@ -133,29 +132,60 @@ export default function QuizQ3() {
   }
 
   function gotoNext() {
-    if (index < questions.length - 1) {
-      setIndex(index + 1)
-    } else {
-      // calculate score
-      let score = 0
-      for (let i = 0; i < questions.length; i++) {
-        if (isCorrectAnswer(questions[i], answers[i])) {
-          score++
+    if (showFeedback) {
+      setShowFeedback(false)
+      if (index < questions.length - 1) {
+        setIndex(index + 1)
+      } else {
+        // calculate score
+        let score = 0
+        for (let i = 0; i < questions.length; i++) {
+          if (isCorrectAnswer(questions[i], answers[i])) {
+            score++
+          }
         }
+        saveResult(score, questions.length, title)
+        setFinished(true)
       }
-      saveResult(score, questions.length, title)
-      setFinished(true)
+    } else {
+      setShowFeedback(true)
     }
   }
 
   function gotoPrev() {
-    if (index > 0) setIndex(index - 1)
+    if (index > 0) {
+      setShowFeedback(false)
+      setIndex(index - 1)
+    }
   }
 
   function restart() {
     setAnswers(Array(questions.length).fill(null))
     setIndex(0)
     setFinished(false)
+    setShowFeedback(false)
+  }
+
+  if (loading) {
+    return (
+      <section className="quiz">
+        <div className="container">
+          <h1 style={{ textAlign: 'center', marginBottom: '45px' }}>{title}</h1>
+          <p style={{ textAlign: 'center' }}>Loading quiz questions...</p>
+        </div>
+      </section>
+    )
+  }
+
+  if (error && questions.length === 0) {
+    return (
+      <section className="quiz">
+        <div className="container">
+          <h1 style={{ textAlign: 'center', marginBottom: '45px' }}>{title}</h1>
+          <p style={{ textAlign: 'center', color: '#ff6b6b' }}>⚠ {error}</p>
+        </div>
+      </section>
+    )
   }
 
   return (
@@ -165,18 +195,25 @@ export default function QuizQ3() {
 
         {!finished ? (
           <article className="question" aria-live="polite">
-            <h2>{questions[index].text}</h2>
+            <h2>{questions[index]?.text}</h2>
             
-            {questions[index].type === 'mc' || !questions[index].type ? (
+            {questions[index]?.type === 'mc' || !questions[index]?.type ? (
               <ul>
-                {questions[index].choices?.map((c, i) => {
+                {questions[index]?.choices?.map((c, i) => {
                   const selected = answers[index] === i
+                  const isCorrect = i === questions[index]?.correct
+                  let btnStyle = {}
+                  if (showFeedback && selected) {
+                    btnStyle = isCorrect ? { backgroundColor: '#52c41a', borderColor: '#52c41a' } : { backgroundColor: '#ff4d4f', borderColor: '#ff4d4f' }
+                  }
                   return (
                     <li key={i} style={{ marginBottom: 8 }}>
                       <button
                         className={`choice ${selected ? 'selected' : ''}`}
-                        onClick={() => selectChoice(i)}
+                        onClick={() => !showFeedback && selectChoice(i)}
                         aria-pressed={selected}
+                        style={btnStyle}
+                        disabled={showFeedback}
                       >
                         {c}
                       </button>
@@ -184,7 +221,7 @@ export default function QuizQ3() {
                   )
                 })}
               </ul>
-            ) : questions[index].type === 'text' ? (
+            ) : questions[index]?.type === 'text' ? (
               <input
                 type="text"
                 className="choice-input"
@@ -192,8 +229,10 @@ export default function QuizQ3() {
                 value={answers[index] || ''}
                 onChange={(e) => inputAnswer(e.target.value)}
                 aria-label="Text answer"
+                disabled={showFeedback}
+                style={showFeedback ? (isCorrectAnswer(questions[index], answers[index]) ? { borderColor: '#52c41a', backgroundColor: 'rgba(82, 196, 26, 0.1)' } : { borderColor: '#ff4d4f', backgroundColor: 'rgba(255, 77, 79, 0.1)' }) : {}}
               />
-            ) : questions[index].type === 'number' ? (
+            ) : questions[index]?.type === 'number' ? (
               <input
                 type="number"
                 className="choice-input"
@@ -201,6 +240,8 @@ export default function QuizQ3() {
                 value={answers[index] || ''}
                 onChange={(e) => inputAnswer(e.target.value)}
                 aria-label="Numeric answer"
+                disabled={showFeedback}
+                style={showFeedback ? (isCorrectAnswer(questions[index], answers[index]) ? { borderColor: '#52c41a', backgroundColor: 'rgba(82, 196, 26, 0.1)' } : { borderColor: '#ff4d4f', backgroundColor: 'rgba(255, 77, 79, 0.1)' }) : {}}
               />
             ) : null}
 
@@ -212,7 +253,7 @@ export default function QuizQ3() {
                 aria-disabled={!isAnswered(index)}
                 disabled={!isAnswered(index)}
               >
-                {index < questions.length - 1 ? 'Next' : 'Finish'}
+                {showFeedback ? (index === questions.length - 1 ? 'Finish' : 'Next Question') : 'Submit Answer'}
               </button>
             </div>
 
@@ -243,6 +284,7 @@ export default function QuizQ3() {
 
             <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
               <button className="btn" onClick={restart}>Retry</button>
+              <button className="btn" onClick={() => navigate('/quiz')}>Back to Quiz</button>
             </div>
           </section>
         )}

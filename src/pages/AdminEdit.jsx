@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import client from '../api'
 import '../admin/css/admin.css'
 
 export default function AdminEdit() {
   const navigate = useNavigate()
   const [mode, setMode] = useState(null) // 'add' | 'delete' | null
   const [selectedQuiz, setSelectedQuiz] = useState('')
-  const [selectedQuestionNum, setSelectedQuestionNum] = useState('')
+  const [selectedQuizId, setSelectedQuizId] = useState('')
+  const [quizQuestions, setQuizQuestions] = useState([])
+  const [loadingQuestions, setLoadingQuestions] = useState(false)
+  const [availableQuizzes, setAvailableQuizzes] = useState([])
   const [questions, setQuestions] = useState([
     { id: Date.now(), type: 'mc', text: '', choices: ['', '', '', ''], correct: 0 }
   ])
@@ -14,10 +18,26 @@ export default function AdminEdit() {
   useEffect(() => {
     try {
       const isAuth = sessionStorage.getItem('myquiz_admin_auth') === '1'
-      if (!isAuth) window.location.href = '/admin-index.html'
+      if (!isAuth) {
+        window.location.href = '/admin-index.html'
+        return
+      }
     } catch (e) {
       window.location.href = '/admin-index.html'
+      return
     }
+
+    // Fetch available quizzes from backend
+    const fetchQuizzes = async () => {
+      try {
+        const response = await client.get('/quizzes')
+        setAvailableQuizzes(response.data || [])
+      } catch (err) {
+        console.error('Failed to load quizzes:', err)
+      }
+    }
+
+    fetchQuizzes()
   }, [])
 
   const handleAdd = () => {
@@ -33,8 +53,33 @@ export default function AdminEdit() {
   const handleCancel = () => {
     setMode(null)
     setSelectedQuiz('')
-    setSelectedQuestionNum('')
+    setSelectedQuizId('')
     setQuestions([{ id: Date.now(), type: 'mc', text: '', choices: ['', '', '', ''], correct: 0 }])
+  }
+
+  const handleQuizChange = (e) => {
+    const quizId = e.target.value
+    setSelectedQuizId(quizId)
+    const quiz = availableQuizzes.find(q => q.id === quizId)
+    setSelectedQuiz(quiz?.title || '')
+    if (quizId) {
+      loadQuestions(quizId)
+    } else {
+      setQuizQuestions([])
+    }
+  }
+
+  const loadQuestions = async (quizId) => {
+    setLoadingQuestions(true)
+    try {
+      const res = await client.get(`/quizzes/${quizId}`)
+      setQuizQuestions(res.data?.questions || [])
+    } catch (err) {
+      console.error('Failed to load quiz questions:', err)
+      setQuizQuestions([])
+    } finally {
+      setLoadingQuestions(false)
+    }
   }
 
   const addQuestion = () => {
@@ -69,7 +114,7 @@ export default function AdminEdit() {
     }))
   }
 
-  const handleSubmitAll = (e) => {
+  const handleSubmitAll = async (e) => {
     e.preventDefault()
     // Validate all questions
     for (let q of questions) {
@@ -89,9 +134,27 @@ export default function AdminEdit() {
       }
     }
     
-    alert(`${questions.length} question(s) added successfully! (Feature in development)`)
-    console.log('Questions to add:', questions)
-    handleCancel()
+    try {
+      // Format questions for backend
+      const formattedQuestions = questions.map(q => ({
+        text: q.text,
+        type: q.type,
+        ...(q.type === 'mc' && { choices: q.choices }),
+        correct: q.correct
+      }))
+
+      // Submit to backend API
+      const response = await client.post(`/quizzes/${selectedQuizId}/questions`, {
+        questions: formattedQuestions
+      })
+
+      console.log('Questions added:', response.data)
+      alert(`Successfully added ${response.data.added} question(s)!`)
+      handleCancel()
+    } catch (err) {
+      console.error('Failed to add questions:', err)
+      alert(err.response?.data?.error || 'Failed to add questions. Please try again.')
+    }
   }
 
   // Add form view
@@ -339,35 +402,17 @@ export default function AdminEdit() {
 
   // Delete view
   if (mode === 'delete') {
-    // Sample questions for different quizzes
-    const quizQuestions = {
-      'General Knowledge': [
-        { id: 1, text: 'Which language runs in a web browser?', choices: ['Java', 'C', 'Python', 'JavaScript'], correct: 3, type: 'mc' },
-        { id: 2, text: 'What does CSS stand for?', choices: ['Cascading Style Sheets', 'Computer Style Sheets', 'Creative Style System', 'Colorful Style Syntax'], correct: 0, type: 'mc' },
-        { id: 3, text: 'Which HTML element do we put the JavaScript in?', choices: ['<js>', '<script>', '<javascript>', '<code>'], correct: 1, type: 'mc' },
-        { id: 4, text: 'Which company developed the React library?', choices: ['Google', 'Facebook (Meta)', 'Microsoft', 'Twitter'], correct: 1, type: 'mc' },
-        { id: 5, text: 'Which of these is a JavaScript package manager?', choices: ['npm', 'rails', 'composer', 'pip'], correct: 0, type: 'mc' }
-      ],
-      'Web Development': [
-        { id: 1, text: 'What is the capital of France?', type: 'text', correct: 'Paris' },
-        { id: 2, text: 'What is 15 + 27?', type: 'number', correct: 42 },
-        { id: 3, text: 'Who wrote "Romeo and Juliet"?', type: 'text', correct: 'Shakespeare' }
-      ],
-      'History': [
-        { id: 1, text: 'In which year did World War II end?', type: 'number', correct: 1945 },
-        { id: 2, text: 'Who was the first President of the United States?', type: 'text', correct: 'George Washington' }
-      ]
-    }
+    const handleDeleteQuestion = async (questionId) => {
+      if (!questionId || !selectedQuizId) return
+      const confirmDelete = window.confirm('Delete this question? This cannot be undone.')
+      if (!confirmDelete) return
 
-    const currentQuestions = quizQuestions[selectedQuiz] || []
-    const selectedQuestion = currentQuestions.find((q, idx) => (idx + 1).toString() === selectedQuestionNum)
-
-    const handleDeleteQuestion = () => {
-      if (!selectedQuestion) return
-      if (confirm(`Are you sure you want to delete Question ${selectedQuestionNum}?\n\n"${selectedQuestion.text}"`)) {
-        console.log('Deleting question:', selectedQuestion)
-        alert('Question deleted (API call would happen here)')
-        handleCancel()
+      try {
+        await client.delete(`/quizzes/${selectedQuizId}/questions/${questionId}`)
+        setQuizQuestions(prev => prev.filter(q => (q.id || q._id) !== questionId))
+      } catch (err) {
+        console.error('Failed to delete question:', err)
+        alert(err.response?.data?.error || 'Failed to delete question')
       }
     }
 
@@ -421,108 +466,59 @@ export default function AdminEdit() {
             <h1 style={{fontSize: '28px',marginBottom: '8px',color: '#e6eef8'}}>Delete Question</h1>
             <p style={{color: '#9aa3b2',marginBottom: '16px'}}>Quiz: <strong>{selectedQuiz}</strong></p>
           </section>
-
           <div className="card" style={{background: '#022b45',padding: '18px',borderRadius: '10px',boxShadow: '0 6px 20px rgba(2, 6, 23, 0.6)', marginBottom: '16px'}}>
-            <h3 style={{ color: '#e6eef8', marginBottom: 16 }}>Select Question to Delete</h3>
-            <div className="form-row" style={{ marginTop: 12 }}>
-              <label style={{color: '#e6eef8'}}>Question Number</label>
-              <select 
-                value={selectedQuestionNum}
-                onChange={(e) => setSelectedQuestionNum(e.target.value)}
-                style={{
-                  padding: '10px 12px',
-                  borderRadius: '8px',
-                  border: '1px solid rgba(255, 255, 255, 0.04)',
-                  background: 'transparent',
-                  color: '#e6eef8',
-                  cursor: 'pointer',
-                  width: '100%'
-                }}
-              >
-                <option value="" style={{ background: '#221636' }}>-- Select Question --</option>
-                {currentQuestions.map((q, idx) => (
-                  <option key={idx} value={idx + 1} style={{ background: '#221636' }}>
-                    Question {idx + 1}
-                  </option>
-                ))}
-              </select>
+              <h3 style={{ color: '#e6eef8', marginBottom: 16 }}>Questions</h3>
+              {loadingQuestions ? (
+                <p style={{ color: '#9aa3b2' }}>Loading questions...</p>
+              ) : quizQuestions.length === 0 ? (
+                <p style={{ color: '#9aa3b2' }}>No questions found for this quiz.</p>
+              ) : (
+                <ol style={{ paddingLeft: 18, color: '#e6eef8' }}>
+                  {quizQuestions.map((q, idx) => (
+                    <li key={q.id || q._id} style={{ marginBottom: 12 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start' }}>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontWeight: 600 }}>Question {idx + 1}</div>
+                          <div style={{ marginTop: 4 }}>{q.text}</div>
+                          {renderAnswer(q)}
+                        </div>
+                        <button
+                          className="btn"
+                          onClick={() => handleDeleteQuestion(q.id || q._id)}
+                          style={{
+                            background: '#ff6b6b',
+                            border: 'none',
+                            color: '#042',
+                            padding: '8px 12px',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            fontWeight: '600'
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              )}
             </div>
+
+          <div style={{ display: 'flex', gap: 12 }}>
+            <button
+              onClick={handleCancel}
+              style={{
+                background: 'transparent',
+                border: '1px solid rgba(79, 156, 255, 0.22)',
+                color: '#4f9cff',
+                padding: '10px 16px',
+                borderRadius: '6px',
+                cursor: 'pointer'
+              }}
+            >
+              Cancel
+            </button>
           </div>
-
-          {selectedQuestion && (
-            <div className="card" style={{
-              background: '#022b45',
-              padding: '18px',
-              borderRadius: '10px',
-              boxShadow: '0 6px 20px rgba(2, 6, 23, 0.6)',
-              marginBottom: '16px',
-              border: '2px solid rgba(255, 193, 7, 0.3)'
-            }}>
-              <h3 style={{ color: '#ffc107', marginBottom: 12 }}>⚠️ Confirm Deletion</h3>
-              <div style={{ 
-                background: 'rgba(255,255,255,0.02)', 
-                padding: 16, 
-                borderRadius: 8,
-                marginBottom: 16
-              }}>
-                <div style={{ marginBottom: 8 }}>
-                  <strong style={{ color: '#4f9cff' }}>Question {selectedQuestionNum}:</strong>
-                </div>
-                <div style={{ color: '#e6eef8', fontSize: '1.05rem', marginBottom: 12 }}>
-                  {selectedQuestion.text}
-                </div>
-                {renderAnswer(selectedQuestion)}
-              </div>
-              
-              <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
-                <button
-                  onClick={handleDeleteQuestion}
-                  style={{
-                    background: '#ff4d4f',
-                    border: 'none',
-                    color: '#fff',
-                    padding: '10px 16px',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    fontWeight: '600'
-                  }}
-                >
-                  Delete Question
-                </button>
-                <button
-                  onClick={handleCancel}
-                  style={{
-                    background: 'transparent',
-                    border: '1px solid rgba(79, 156, 255, 0.22)',
-                    color: '#4f9cff',
-                    padding: '10px 16px',
-                    borderRadius: '6px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          )}
-
-          {!selectedQuestion && (
-            <div style={{ display: 'flex', gap: 12 }}>
-              <button
-                onClick={handleCancel}
-                style={{
-                  background: 'transparent',
-                  border: '1px solid rgba(79, 156, 255, 0.22)',
-                  color: '#4f9cff',
-                  padding: '10px 16px',
-                  borderRadius: '6px',
-                  cursor: 'pointer'
-                }}
-              >
-                Cancel
-              </button>
-            </div>
-          )}
         </main>
 
         <footer className="site-footer" style={{margin: '28px auto',textAlign: 'center',color: '#9aa3b2',padding: '12px'}}><small>© MyQuiz — Admin Panel</small></footer>
@@ -553,11 +549,11 @@ export default function AdminEdit() {
             <h3 >Select Quiz</h3>
             <div className="form-row" style={{ marginTop: 12 }}>
               <label htmlFor="quizSelect" style={{color: '#e6eef8',}}>Quiz</label>
-              <select id="quizSelect" value={selectedQuiz} onChange={(e) => setSelectedQuiz(e.target.value)} style={{background: '#f4f6f7ff',color: '#131313ff',border: '1px solid #4f9cff',borderRadius: '6px',padding: '8px 12px'}}>
+              <select id="quizSelect" value={selectedQuizId} onChange={handleQuizChange} style={{background: '#f4f6f7ff',color: '#131313ff',border: '1px solid #4f9cff',borderRadius: '6px',padding: '8px 12px'}}>
                 <option value="">-- Select a Quiz --</option>
-                <option value="General Knowledge">General Knowledge</option>
-                <option value="Web Development">Web Development</option>
-                <option value="History">History</option>
+                {availableQuizzes.map(quiz => (
+                  <option key={quiz.id} value={quiz.id}>{quiz.title}</option>
+                ))}
               </select>
             </div>
           </div>
