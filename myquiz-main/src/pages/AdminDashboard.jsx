@@ -17,11 +17,11 @@ export default function AdminDashboard() {
       const isAuth = sessionStorage.getItem('myquiz_admin_auth') === '1'
       if (!isAuth) {
         // Not authenticated - redirect to admin login
-        window.location.href = '/admin-index.html'
+        navigate('/admin-index')
         return
       }
     } catch (e) {
-      window.location.href = '/admin-index.html'
+      navigate('/admin-index')
       return
     }
 

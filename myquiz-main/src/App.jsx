@@ -6,9 +6,7 @@ import AdminIndex from './pages/AdminIndex'
 import AdminManageUser from './pages/AdminManageUser'
 import AdminScores from './pages/AdminScores'
 import Landing from './pages/Landing'
-import QuizQ1 from './pages/QuizQ1'
-import QuizQ2 from './pages/QuizQ2'
-import QuizQ3 from './pages/QuizQ3'
+import QuizPage from './pages/QuizPage'
 import Quiz from './pages/Quiz'
 import SignIn from './pages/SignIn'
 import AdminLogin from './pages/AdminLogin'
@@ -48,9 +46,7 @@ export default function App() {
           <Route path="/admin-edit" element={<AdminEdit />} />
           <Route path="/admin-manage-user" element={<AdminManageUser />} />
           <Route path="/admin-scores" element={<AdminScores />} />
-          <Route path="/quizq1" element={<QuizQ1 />} />
-          <Route path="/quizq2" element={<QuizQ2 />} />
-          <Route path="/quizq3" element={<QuizQ3 />} />
+          <Route path="/quiz-player" element={<QuizPage />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/quiz" element={<Quiz />} />
           <Route path="/score-history" element={<ScoreHistory />} />

@@ -32,7 +32,7 @@ export default function Quiz() {
   }, [])
 
   const handleStartQuiz = (quiz) => {
-    navigate(`/quizq1`, { state: { quizId: quiz.id || quiz._id, title: quiz.title } })
+    navigate(`/quiz-player`, { state: { quizId: quiz.id || quiz._id, title: quiz.title } })
   }
 
   if (loading) {

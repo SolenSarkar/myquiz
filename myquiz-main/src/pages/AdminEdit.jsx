@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import client from '../api'
+import client, { createQuiz, deleteQuiz } from '../api'
 import '../admin/css/admin.css'
 
 export default function AdminEdit() {
   const navigate = useNavigate()
-  const [mode, setMode] = useState(null) // 'add' | 'delete' | null
+  const [mode, setMode] = useState(null) // 'add' | 'delete' | 'addQuiz' | 'deleteQuiz' | null
   const [selectedQuiz, setSelectedQuiz] = useState('')
   const [selectedQuizId, setSelectedQuizId] = useState('')
   const [quizQuestions, setQuizQuestions] = useState([])
@@ -14,16 +14,18 @@ export default function AdminEdit() {
   const [questions, setQuestions] = useState([
     { id: Date.now(), type: 'mc', text: '', choices: ['', '', '', ''], correct: 0 }
   ])
+  const [newQuizTitle, setNewQuizTitle] = useState('')
+  const [newQuizDescription, setNewQuizDescription] = useState('')
 
   useEffect(() => {
     try {
       const isAuth = sessionStorage.getItem('myquiz_admin_auth') === '1'
       if (!isAuth) {
-        window.location.href = '/admin-index.html'
+        navigate('/admin-index')
         return
       }
     } catch (e) {
-      window.location.href = '/admin-index.html'
+      navigate('/admin-index')
       return
     }
 
@@ -55,6 +57,60 @@ export default function AdminEdit() {
     setSelectedQuiz('')
     setSelectedQuizId('')
     setQuestions([{ id: Date.now(), type: 'mc', text: '', choices: ['', '', '', ''], correct: 0 }])
+    setNewQuizTitle('')
+    setNewQuizDescription('')
+  }
+
+  const handleAddQuizSet = () => {
+    setMode('addQuiz')
+  }
+
+  const handleDeleteQuizSet = () => {
+    if (!selectedQuiz) return alert('Please select a quiz first')
+    setMode('deleteQuiz')
+  }
+
+  const handleCreateQuizSet = async (e) => {
+    e.preventDefault()
+    if (!newQuizTitle.trim()) {
+      alert('Quiz title is required')
+      return
+    }
+
+    try {
+      const response = await createQuiz(newQuizTitle, newQuizDescription, [])
+      alert(`Quiz "${newQuizTitle}" created successfully!`)
+      
+      // Refresh quiz list
+      const quizzesResponse = await client.get('/quizzes')
+      setAvailableQuizzes(quizzesResponse.data || [])
+      
+      handleCancel()
+    } catch (err) {
+      console.error('Failed to create quiz:', err)
+      alert(err.response?.data?.error || 'Failed to create quiz. Please try again.')
+    }
+  }
+
+  const handleConfirmDeleteQuizSet = async () => {
+    if (!selectedQuizId) return
+    
+    const confirmed = window.confirm(`Are you sure you want to delete the entire "${selectedQuiz}" quiz set? This will delete all questions in it and cannot be undone.`)
+    if (!confirmed) return
+
+    try {
+      await deleteQuiz(selectedQuizId)
+      alert(`Quiz "${selectedQuiz}" deleted successfully!`)
+      
+      // Refresh quiz list
+      const quizzesResponse = await client.get('/quizzes')
+      setAvailableQuizzes(quizzesResponse.data || [])
+      
+      handleCancel()
+    } catch (err) {
+      console.error('Failed to delete quiz:', err)
+      alert(err.response?.data?.error || 'Failed to delete quiz. Please try again.')
+    }
   }
 
   const handleQuizChange = (e) => {
@@ -526,6 +582,178 @@ export default function AdminEdit() {
     )
   }
 
+  // Add quiz set view
+  if (mode === 'addQuiz') {
+    return (
+      <div className="admin-dashboard" style={{boxSizing: 'border-box',fontFamily: 'Inter, Segoe UI, Roboto, Arial, sans-serif',background: '#221636',color: '#e6eef8'}}>
+        <nav className="navbar" style={{display: 'flex',justifyContent: 'space-between',alignItems: 'center',padding: '14px 20px',background: 'rgba(255, 255, 255, 0.03)',borderBottom: '1px solid rgba(255, 255, 255, 0.04)'}}>
+          <div className="nav-left" style={{display: 'flex',alignItems: 'center',gap: '18px'}}>
+            <a className="brand" href="/admin-dashboard" style={{fontWeight: '700',textDecoration: 'none',fontSize: '18px',color:'#4f9cff'}}>MyQuiz Admin</a>
+          </div>
+          <div className="nav-right">
+            <button className="btn" onClick={() => navigate('/admin-dashboard')} style={{background: 'transparent',border: '2px solid rgba(79, 156, 255, 0.22)',color: '#4f9cff',padding: '8px 12px',borderRadius: '6px',cursor: 'pointer'}} >Back</button>
+          </div>
+        </nav>
+
+        <main className="container" style={{ maxWidth: '1100px',margin: '28px auto',padding: '0 20px'}}>
+          <section className="hero" style={{ background: 'linear-gradient(90deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01))',padding: '36px',borderRadius: '10px',boxShadow: '0 6px 18px rgba(0, 0, 0, 0.6)',marginBottom: '20px', border: '1px solid rgba(255, 255, 255, 0.03)'}}>
+            <h1 style={{fontSize: '28px',marginBottom: '8px',color: '#e6eef8'}}>Create New Quiz Set</h1>
+            <p style={{color: '#9aa3b2',marginBottom: '16px'}}>Add a new quiz category like Science, Math, Programming, etc.</p>
+          </section>
+
+          <form onSubmit={handleCreateQuizSet}>
+            <div className="card" style={{background: '#022b45',padding: '18px',borderRadius: '10px',boxShadow: '0 6px 20px rgba(2, 6, 23, 0.6)', marginBottom: '16px'}}>
+              <div className="form-row" style={{ marginBottom: 16 }}>
+                <label style={{color: '#e6eef8', display: 'block', marginBottom: 8}}>Quiz Title *</label>
+                <input
+                  type="text"
+                  value={newQuizTitle}
+                  onChange={(e) => setNewQuizTitle(e.target.value)}
+                  placeholder="e.g., Science Quiz, Mathematics, Sports Trivia"
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: '8px',
+                    border: '1px solid rgba(255, 255, 255, 0.04)',
+                    background: 'transparent',
+                    color: '#e6eef8',
+                    fontFamily: 'inherit'
+                  }}
+                />
+              </div>
+
+              <div className="form-row">
+                <label style={{color: '#e6eef8', display: 'block', marginBottom: 8}}>Description (Optional)</label>
+                <textarea
+                  value={newQuizDescription}
+                  onChange={(e) => setNewQuizDescription(e.target.value)}
+                  placeholder="Brief description of the quiz..."
+                  rows={3}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: '8px',
+                    border: '1px solid rgba(255, 255, 255, 0.04)',
+                    background: 'transparent',
+                    color: '#e6eef8',
+                    fontFamily: 'inherit'
+                  }}
+                />
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: 12 }}>
+              <button
+                type="submit"
+                style={{
+                  background: '#52c41a',
+                  border: 'none',
+                  color: '#042',
+                  padding: '10px 20px',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontWeight: '600'
+                }}
+              >
+                Create Quiz Set
+              </button>
+              <button
+                type="button"
+                onClick={handleCancel}
+                style={{
+                  background: 'transparent',
+                  border: '1px solid rgba(79, 156, 255, 0.22)',
+                  color: '#4f9cff',
+                  padding: '10px 16px',
+                  borderRadius: '6px',
+                  cursor: 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </main>
+
+        <footer className="site-footer" style={{margin: '28px auto',textAlign: 'center',color: '#9aa3b2',padding: '12px'}}><small>© MyQuiz — Admin Panel</small></footer>
+      </div>
+    )
+  }
+
+  // Delete quiz set view
+  if (mode === 'deleteQuiz') {
+    return (
+      <div className="admin-dashboard" style={{boxSizing: 'border-box',fontFamily: 'Inter, Segoe UI, Roboto, Arial, sans-serif',background: '#221636',color: '#e6eef8'}}>
+        <nav className="navbar" style={{display: 'flex',justifyContent: 'space-between',alignItems: 'center',padding: '14px 20px',background: 'rgba(255, 255, 255, 0.03)',borderBottom: '1px solid rgba(255, 255, 255, 0.04)'}}>
+          <div className="nav-left" style={{display: 'flex',alignItems: 'center',gap: '18px'}}>
+            <a className="brand" href="/admin-dashboard" style={{fontWeight: '700',textDecoration: 'none',fontSize: '18px',color:'#4f9cff'}}>MyQuiz Admin</a>
+          </div>
+          <div className="nav-right">
+            <button className="btn" onClick={() => navigate('/admin-dashboard')} style={{background: 'transparent',border: '2px solid rgba(79, 156, 255, 0.22)',color: '#4f9cff',padding: '8px 12px',borderRadius: '6px',cursor: 'pointer'}} >Back</button>
+          </div>
+        </nav>
+
+        <main className="container" style={{ maxWidth: '1100px',margin: '28px auto',padding: '0 20px'}}>
+          <section className="hero" style={{ background: 'linear-gradient(90deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01))',padding: '36px',borderRadius: '10px',boxShadow: '0 6px 18px rgba(0, 0, 0, 0.6)',marginBottom: '20px', border: '1px solid rgba(255, 255, 255, 0.03)'}}>
+            <h1 style={{fontSize: '28px',marginBottom: '8px',color: '#e6eef8'}}>Delete Quiz Set</h1>
+            <p style={{color: '#9aa3b2',marginBottom: '16px'}}>⚠️ This will permanently delete the entire quiz and all its questions.</p>
+          </section>
+
+          <div className="card" style={{background: '#022b45',padding: '18px',borderRadius: '10px',boxShadow: '0 6px 20px rgba(2, 6, 23, 0.6)', marginBottom: '16px'}}>
+            <div style={{ 
+              background: 'rgba(255, 107, 107, 0.1)',
+              border: '1px solid #ff6b6b',
+              borderRadius: '8px',
+              padding: '16px',
+              marginBottom: '16px'
+            }}>
+              <h3 style={{ color: '#ff6b6b', marginBottom: 8 }}>⚠️ Warning</h3>
+              <p style={{ color: '#e6eef8', marginBottom: 8 }}>
+                You are about to delete: <strong style={{ color: '#ff6b6b' }}>{selectedQuiz}</strong>
+              </p>
+              <p style={{ color: '#9aa3b2', fontSize: '0.9rem' }}>
+                This action cannot be undone. All {quizQuestions.length} question(s) in this quiz will be permanently deleted.
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', gap: 12 }}>
+              <button
+                onClick={handleConfirmDeleteQuizSet}
+                style={{
+                  background: '#ff6b6b',
+                  border: 'none',
+                  color: '#042',
+                  padding: '10px 20px',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontWeight: '600'
+                }}
+              >
+                Yes, Delete Quiz Set
+              </button>
+              <button
+                onClick={handleCancel}
+                style={{
+                  background: 'transparent',
+                  border: '1px solid rgba(79, 156, 255, 0.22)',
+                  color: '#4f9cff',
+                  padding: '10px 16px',
+                  borderRadius: '6px',
+                  cursor: 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </main>
+
+        <footer className="site-footer" style={{margin: '28px auto',textAlign: 'center',color: '#9aa3b2',padding: '12px'}}><small>© MyQuiz — Admin Panel</small></footer>
+      </div>
+    )
+  }
+
   // Main selection view
   return (
     <div className="admin-dashboard" style={{boxSizing: 'border-box',fontFamily: 'Inter, Segoe UI, Roboto, Arial, sans-serif',background: '#221636',color: '#e6eef8'}}>
@@ -570,6 +798,22 @@ export default function AdminEdit() {
               <h3>➖ Delete Question</h3>
               <p style={{ color: 'var(--muted)' }}>Remove an existing question from the selected quiz.</p>
               <button className="btn-link" onClick={handleDelete} style={{background: 'transparent',border: '2px solid rgba(79, 156, 255, 0.22)',color: '#4f9cff',padding: '8px 12px',borderRadius: '6px',cursor: 'pointer'}}>Delete Question</button>
+            </div>
+          </div>
+        </section>
+
+        <section style={{ marginTop: 20 }}>
+          <h3 style={{ marginBottom: 12, color: '#4f9cff' }}>Manage Quiz Sets</h3>
+          <div className="cards">
+            <div className="card">
+              <h3>📚 Create New Quiz Set</h3>
+              <p style={{ color: 'var(--muted)' }}>Create a new quiz category (e.g., Science, Math, etc.).</p>
+              <button className="btn-link" onClick={handleAddQuizSet} style={{background: '#52c41a',border: '2px solid #52c41a',color: '#042',padding: '8px 12px',borderRadius: '6px',cursor: 'pointer',fontWeight: '600'}}>Create Quiz Set</button>
+            </div>
+            <div className="card">
+              <h3>🗑️ Delete Quiz Set</h3>
+              <p style={{ color: 'var(--muted)' }}>Delete an entire quiz set and all its questions.</p>
+              <button className="btn-link" onClick={handleDeleteQuizSet} style={{background: '#ff6b6b',border: '2px solid #ff6b6b',color: '#042',padding: '8px 12px',borderRadius: '6px',cursor: 'pointer',fontWeight: '600'}}>Delete Quiz Set</button>
             </div>
           </div>
         </section>

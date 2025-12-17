@@ -47,6 +47,14 @@ export async function deleteQuestion(quizId, questionId) {
   return client.delete(`/quizzes/${quizId}/questions/${questionId}`)
 }
 
+export async function createQuiz(title, description, questions = []) {
+  return client.post('/quizzes', { title, description, questions })
+}
+
+export async function deleteQuiz(quizId) {
+  return client.delete(`/quizzes/${quizId}`)
+}
+
 export async function getScores(email) {
   return client.get(`/scores/${email}`)
 }

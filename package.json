@@ -1,21 +1,14 @@
 {
-  "name": "quiz-client",
-  "version": "0.1.0",
+  "name": "myquiz-workspace",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview --port 5173",
-    "start": "vite"
-  },
-  "dependencies": {
-    "axios": "^1.4.0",
-    "firebase": "^12.6.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.14.0"
-  },
-  "devDependencies": {
-    "vite": "^5.0.0"
+    "install:frontend": "cd myquiz-main && npm install",
+    "install:backend": "cd myquiz-main/backend && npm install",
+    "install:all": "npm run install:frontend && npm run install:backend",
+    "dev": "cd myquiz-main && npm run dev",
+    "dev:frontend": "cd myquiz-main && npm run dev",
+    "dev:backend": "cd myquiz-main/backend && npm run dev",
+    "start:backend": "cd myquiz-main/backend && npm start"
   }
 }

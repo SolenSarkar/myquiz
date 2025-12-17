@@ -16,11 +16,11 @@ export default function AdminScores() {
     try {
       const isAuth = sessionStorage.getItem('myquiz_admin_auth') === '1'
       if (!isAuth) {
-        window.location.href = '/admin-index.html'
+        navigate('/admin-index')
         return
       }
     } catch (e) {
-      window.location.href = '/admin-index.html'
+      navigate('/admin-index')
       return
     }
 

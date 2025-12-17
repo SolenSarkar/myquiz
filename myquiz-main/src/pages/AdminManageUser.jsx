@@ -21,10 +21,10 @@ export default function AdminManageUser() {
     try {
       const isAuth = sessionStorage.getItem('myquiz_admin_auth') === '1'
       if (!isAuth) {
-        window.location.href = '/admin-index.html'
+        navigate('/admin-index')
       }
     } catch (e) {
-      window.location.href = '/admin-index.html'
+      navigate('/admin-index')
     }
 
     // Load current credentials from session first, then env fallback
