@@ -1,6 +1,6 @@
 import express from 'express'
 import config from './config.js'
-import { corsMiddleware, errorHandler } from './middleware.js'
+import { corsMiddleware, securityHeaders, errorHandler } from './middleware.js'
 import { connectDB, disconnectDB } from './mongodb.js'
 import authRoutes from './routes/auth.js'
 import quizRoutes from './routes/quizzes.js'
@@ -8,9 +8,16 @@ import scoreRoutes from './routes/scores.js'
 
 const app = express()
 
+// Trust proxy for production (needed for Heroku, Railway, etc.)
+if (config.NODE_ENV === 'production') {
+  app.set('trust proxy', 1)
+}
+
 // Middleware
+app.use(securityHeaders)
 app.use(corsMiddleware)
-app.use(express.json())
+app.use(express.json({ limit: '10mb' }))
+app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 
 // Routes
 app.use('/api/auth', authRoutes)

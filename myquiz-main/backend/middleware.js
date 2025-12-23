@@ -1,5 +1,25 @@
 import jwt from 'jsonwebtoken'
+import rateLimit from 'express-rate-limit'
 import config from './config.js'
+
+// Rate limiter for login attempts
+export const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Limit each IP to 5 requests per windowMs
+  message: 'Too many login attempts from this IP, please try again after 15 minutes',
+  standardHeaders: true,
+  legacyHeaders: false,
+  skipSuccessfulRequests: false
+})
+
+// Rate limiter for general API requests
+export const apiLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 100, // Limit each IP to 100 requests per minute
+  message: 'Too many requests from this IP, please try again later',
+  standardHeaders: true,
+  legacyHeaders: false
+})
 
 // Middleware to verify JWT token
 export const verifyToken = (req, res, next) => {
@@ -36,11 +56,29 @@ export const corsMiddleware = (req, res, next) => {
 
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization')
+  res.header('Access-Control-Allow-Credentials', 'true')
 
   if (req.method === 'OPTIONS') {
     return res.sendStatus(200)
   }
 
+  next()
+}
+
+// Security headers middleware
+export const securityHeaders = (req, res, next) => {
+  // Prevent clickjacking
+  res.header('X-Frame-Options', 'DENY')
+  // Prevent MIME type sniffing
+  res.header('X-Content-Type-Options', 'nosniff')
+  // Enable XSS protection
+  res.header('X-XSS-Protection', '1; mode=block')
+  // Referrer policy
+  res.header('Referrer-Policy', 'strict-origin-when-cross-origin')
+  // Content Security Policy
+  if (config.NODE_ENV === 'production') {
+    res.header('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
+  }
   next()
 }
 
