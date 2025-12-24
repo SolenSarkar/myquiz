@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getAllScores } from '../api'
-import '../admin/css/admin.css'
 
 export default function AdminScores() {
   const navigate = useNavigate()
@@ -12,18 +11,6 @@ export default function AdminScores() {
   const scoresPerPage = 10
 
   useEffect(() => {
-    // Check session authentication
-    try {
-      const isAuth = sessionStorage.getItem('myquiz_admin_auth') === '1'
-      if (!isAuth) {
-        navigate('/admin-index')
-        return
-      }
-    } catch (e) {
-      navigate('/admin-index')
-      return
-    }
-
     // Load scores from backend API
     const fetchScores = async () => {
       try {

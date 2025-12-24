@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getAllScores } from '../api'
-import '../admin/css/admin.css'
 
 export default function AdminDashboard() {
   const navigate = useNavigate()
@@ -12,19 +11,6 @@ export default function AdminDashboard() {
   const [usingLocalScores, setUsingLocalScores] = useState(false)
 
   useEffect(() => {
-    // Check session authentication
-    try {
-      const isAuth = sessionStorage.getItem('myquiz_admin_auth') === '1'
-      if (!isAuth) {
-        // Not authenticated - redirect to admin login
-        navigate('/admin-index')
-        return
-      }
-    } catch (e) {
-      navigate('/admin-index')
-      return
-    }
-
     // Load scores from backend API
     const fetchScores = async () => {
       try {

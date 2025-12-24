@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import client, { createQuiz, deleteQuiz } from '../api'
-import '../admin/css/admin.css'
 
 export default function AdminEdit() {
   const navigate = useNavigate()
@@ -18,17 +17,6 @@ export default function AdminEdit() {
   const [newQuizDescription, setNewQuizDescription] = useState('')
 
   useEffect(() => {
-    try {
-      const isAuth = sessionStorage.getItem('myquiz_admin_auth') === '1'
-      if (!isAuth) {
-        navigate('/admin-index')
-        return
-      }
-    } catch (e) {
-      navigate('/admin-index')
-      return
-    }
-
     // Fetch available quizzes from backend
     const fetchQuizzes = async () => {
       try {

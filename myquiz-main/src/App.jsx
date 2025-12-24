@@ -11,8 +11,10 @@ import Quiz from './pages/Quiz'
 import SignIn from './pages/SignIn'
 import AdminLogin from './pages/AdminLogin'
 import ScoreHistory from './pages/ScoreHistory'
+import NotFound from './pages/NotFound'
 import Header from './components/Header'
 import Footer from './components/Footer'
+import ProtectedRoute from './components/ProtectedRoute'
 import { auth } from './firebase'
 import { onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth'
 
@@ -42,16 +44,31 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/admin-index" element={<AdminIndex />} />
-          <Route path="/admin-dashboard" element={<AdminDashboard />} />
-          <Route path="/admin-edit" element={<AdminEdit />} />
-          <Route path="/admin-manage-user" element={<AdminManageUser />} />
-          <Route path="/admin-scores" element={<AdminScores />} />
+          <Route path="/admin-dashboard" element={
+            <ProtectedRoute>
+              <AdminDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin-edit" element={
+            <ProtectedRoute>
+              <AdminEdit />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin-manage-user" element={
+            <ProtectedRoute>
+              <AdminManageUser />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin-scores" element={
+            <ProtectedRoute>
+              <AdminScores />
+            </ProtectedRoute>
+          } />
           <Route path="/quiz-player" element={<QuizPage />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/quiz" element={<Quiz />} />
           <Route path="/score-history" element={<ScoreHistory />} />
-          {/* Admin modal is rendered globally and opened from the header; remove navigation route */}
-          <Route path="*" element={<Landing />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
       {!isAdminRoute && <Footer />}

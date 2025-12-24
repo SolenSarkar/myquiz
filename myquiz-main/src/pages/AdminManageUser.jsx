@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import client from '../api'
-import '../admin/css/admin.css'
 
 export default function AdminManageUser() {
   const navigate = useNavigate()
@@ -17,16 +16,6 @@ export default function AdminManageUser() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   useEffect(() => {
-    // Check session authentication
-    try {
-      const isAuth = sessionStorage.getItem('myquiz_admin_auth') === '1'
-      if (!isAuth) {
-        navigate('/admin-index')
-      }
-    } catch (e) {
-      navigate('/admin-index')
-    }
-
     // Load current credentials from session first, then env fallback
     try {
       const stored = sessionStorage.getItem('admin_email')
