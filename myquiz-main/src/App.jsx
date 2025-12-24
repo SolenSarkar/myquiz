@@ -12,6 +12,7 @@ import SignIn from './pages/SignIn'
 import AdminLogin from './pages/AdminLogin'
 import ScoreHistory from './pages/ScoreHistory'
 import NotFound from './pages/NotFound'
+import Diagnostic from './pages/Diagnostic'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -68,6 +69,7 @@ export default function App() {
           <Route path="/signin" element={<SignIn />} />
           <Route path="/quiz" element={<Quiz />} />
           <Route path="/score-history" element={<ScoreHistory />} />
+          <Route path="/diagnostic" element={<Diagnostic />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
