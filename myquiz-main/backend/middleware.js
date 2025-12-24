@@ -50,7 +50,11 @@ export const verifyAdmin = (req, res, next) => {
 export const corsMiddleware = (req, res, next) => {
   const origin = req.headers.origin
 
-  if (config.ALLOWED_ORIGINS.includes(origin)) {
+  // Allow all configured origins and any Vercel deployment URLs
+  const isAllowed = config.ALLOWED_ORIGINS.includes(origin) || 
+                    (origin && origin.includes('.vercel.app'))
+
+  if (isAllowed && origin) {
     res.header('Access-Control-Allow-Origin', origin)
   }
 
