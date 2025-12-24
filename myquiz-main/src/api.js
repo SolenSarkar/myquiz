@@ -3,9 +3,15 @@ import axios from 'axios'
 // Production backend URL
 const API_BASE = import.meta.env.VITE_API_BASE || 'https://myquiz-zvai.onrender.com/api'
 
+// Debug logging for deployment troubleshooting
+console.log('API Configuration:')
+console.log('- VITE_API_BASE:', import.meta.env.VITE_API_BASE)
+console.log('- Using API_BASE:', API_BASE)
+console.log('- Environment:', import.meta.env.MODE)
+
 const client = axios.create({
   baseURL: API_BASE,
-  timeout: 5000,
+  timeout: 15000, // Increased timeout for Render cold starts
   headers: {
     'Content-Type': 'application/json'
   }
@@ -17,8 +23,27 @@ client.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
+  console.log('API Request:', config.method?.toUpperCase(), config.url)
   return config
 })
+
+// Response interceptor for better error logging
+client.interceptors.response.use(
+  (response) => {
+    console.log('API Response:', response.status, response.config.url)
+    return response
+  },
+  (error) => {
+    console.error('API Error:', {
+      url: error.config?.url,
+      method: error.config?.method,
+      status: error.response?.status,
+      message: error.message,
+      data: error.response?.data
+    })
+    return Promise.reject(error)
+  }
+)
 
 export async function postScore(payload) {
   return client.post('/scores', payload)
