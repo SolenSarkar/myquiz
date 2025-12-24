@@ -1,22 +1,8 @@
 // New SignIn page with Google Authentication (Firebase)
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-
-// Firebase modular SDK
-import { initializeApp, getApps } from 'firebase/app'
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth'
-import { auth as FirebaseAuth } from '../firebase'
-
-// Initialize Firebase app (replace config with your project's values)
-const firebaseConfig = {
-  apiKey: "REPLACE_ME",
-  authDomain: "REPLACE_ME",
-  projectId: "REPLACE_ME",
-  appId: "REPLACE_ME"
-}
-if (!getApps().length) {
-  initializeApp(firebaseConfig)
-}
+import { GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth'
+import { auth } from '../firebase'
 
 export default function SignIn() {
   const navigate = useNavigate()
@@ -25,7 +11,6 @@ export default function SignIn() {
   const [error, setError] = useState(null)
   const [registered, setRegistered] = useState(false)
 
-  const auth = FirebaseAuth;
   const provider = new GoogleAuthProvider()
 
   useEffect(() => {
@@ -109,14 +94,6 @@ export default function SignIn() {
           {error && (
             <div role="alert" style={{ color: '#ff6b6b', marginTop: 12 }}>{error}</div>
           )}
-
-          <div style={{ marginTop: 18, color: 'var(--muted)' }}>
-            <small>
-              Note: This example uses Firebase Authentication in the browser. Replace the firebaseConfig values with your project's config and run
-              <br />
-              <code>npm install firebase</code>
-            </small>
-          </div>
         </div>
       </section>
     </main>
