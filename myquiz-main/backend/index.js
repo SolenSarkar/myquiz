@@ -19,10 +19,30 @@ app.use(corsMiddleware)
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 
+// Request logging middleware
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`)
+  next()
+})
+
 // Routes
 app.use('/api/auth', authRoutes)
 app.use('/api/quizzes', quizRoutes)
 app.use('/api/scores', scoreRoutes)
+
+// Root route
+app.get('/', (req, res) => {
+  res.json({
+    message: 'MyQuiz Backend API',
+    version: '1.0.0',
+    endpoints: {
+      health: '/api/health',
+      auth: '/api/auth/*',
+      quizzes: '/api/quizzes',
+      scores: '/api/scores'
+    }
+  })
+})
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -35,7 +55,8 @@ app.get('/api/health', (req, res) => {
 
 // 404 handler
 app.use((req, res) => {
-  res.status(404).json({ error: 'Route not found' })
+  console.log(`404 - Route not found: ${req.method} ${req.path}`)
+  res.status(404).json({ error: 'Route not found', path: req.path, method: req.method })
 })
 
 // Error handler (must be last)
