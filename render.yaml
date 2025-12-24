@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: myquiz-backend
+    env: node
+    region: oregon
+    plan: free
+    branch: main
+    rootDir: myquiz-main/backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+    healthCheckPath: /api/health
