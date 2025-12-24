@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getAllScores } from '../api'
+import '../admin/css/admin.css'
 
 export default function AdminDashboard() {
   const navigate = useNavigate()

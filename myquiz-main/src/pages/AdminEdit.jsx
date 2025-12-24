@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import client, { createQuiz, deleteQuiz } from '../api'
+import '../admin/css/admin.css'
 
 export default function AdminEdit() {
   const navigate = useNavigate()

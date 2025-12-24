@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import client from '../api'
+import '../admin/css/admin.css'
 
 export default function AdminManageUser() {
   const navigate = useNavigate()
