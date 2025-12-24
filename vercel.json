@@ -3,14 +3,10 @@
   "buildCommand": "cd myquiz-main && npm install && npm run build",
   "outputDirectory": "myquiz-main/dist",
   "installCommand": "cd myquiz-main && npm install",
-  "routes": [
+  "rewrites": [
     {
-      "src": "/assets/(.*)",
-      "dest": "/assets/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ],
   "headers": [
