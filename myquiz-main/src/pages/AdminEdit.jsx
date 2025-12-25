@@ -208,7 +208,7 @@ export default function AdminEdit() {
       <div className="admin-dashboard" style={{boxSizing: 'border-box',fontFamily: 'Inter, Segoe UI, Roboto, Arial, sans-serif',background: '#221636',color: '#e6eef8'}}>
         <nav className="navbar" style={{display: 'flex',justifyContent: 'space-between',alignItems: 'center',padding: '14px 20px',background: 'rgba(255, 255, 255, 0.03)',borderBottom: '1px solid rgba(255, 255, 255, 0.04)'}}>
           <div className="nav-left" style={{display: 'flex',alignItems: 'center',gap: '18px'}}>
-            <a className="brand" href="/admin-dashboard" style={{fontWeight: '700',textDecoration: 'none',fontSize: '18px',color:'#4f9cff'}}>MyQuiz Admin</a>
+            <a className="brand" onClick={() => navigate('/admin-dashboard')} style={{fontWeight: '700',textDecoration: 'none',fontSize: '18px',color:'#4f9cff',cursor: 'pointer'}}>MyQuiz Admin</a>
           </div>
           <div className="nav-right">
             <button className="btn" onClick={() => navigate('/admin-dashboard')} style={{background: 'transparent',border: '2px solid rgba(79, 156, 255, 0.22)',color: '#4f9cff',padding: '8px 12px',borderRadius: '6px',cursor: 'pointer'}} >Back</button>
@@ -499,7 +499,7 @@ export default function AdminEdit() {
       <div className="admin-dashboard" style={{boxSizing: 'border-box',fontFamily: 'Inter, Segoe UI, Roboto, Arial, sans-serif',background: '#221636',color: '#e6eef8'}}>
         <nav className="navbar" style={{display: 'flex',justifyContent: 'space-between',alignItems: 'center',padding: '14px 20px',background: 'rgba(255, 255, 255, 0.03)',borderBottom: '1px solid rgba(255, 255, 255, 0.04)'}}>
           <div className="nav-left" style={{display: 'flex',alignItems: 'center',gap: '18px'}}>
-            <a className="brand" href="/admin-dashboard" style={{fontWeight: '700',textDecoration: 'none',fontSize: '18px',color:'#4f9cff'}}>MyQuiz Admin</a>
+            <a className="brand" onClick={() => navigate('/admin-dashboard')} style={{fontWeight: '700',textDecoration: 'none',fontSize: '18px',color:'#4f9cff',cursor: 'pointer'}}>MyQuiz Admin</a>
           </div>
           <div className="nav-right">
             <button className="btn" onClick={() => navigate('/admin-dashboard')} style={{background: 'transparent',border: '2px solid rgba(79, 156, 255, 0.22)',color: '#4f9cff',padding: '8px 12px',borderRadius: '6px',cursor: 'pointer'}} >Back</button>
@@ -577,7 +577,7 @@ export default function AdminEdit() {
       <div className="admin-dashboard" style={{boxSizing: 'border-box',fontFamily: 'Inter, Segoe UI, Roboto, Arial, sans-serif',background: '#221636',color: '#e6eef8'}}>
         <nav className="navbar" style={{display: 'flex',justifyContent: 'space-between',alignItems: 'center',padding: '14px 20px',background: 'rgba(255, 255, 255, 0.03)',borderBottom: '1px solid rgba(255, 255, 255, 0.04)'}}>
           <div className="nav-left" style={{display: 'flex',alignItems: 'center',gap: '18px'}}>
-            <a className="brand" href="/admin-dashboard" style={{fontWeight: '700',textDecoration: 'none',fontSize: '18px',color:'#4f9cff'}}>MyQuiz Admin</a>
+            <a className="brand" onClick={() => navigate('/admin-dashboard')} style={{fontWeight: '700',textDecoration: 'none',fontSize: '18px',color:'#4f9cff',cursor: 'pointer'}}>MyQuiz Admin</a>
           </div>
           <div className="nav-right">
             <button className="btn" onClick={() => navigate('/admin-dashboard')} style={{background: 'transparent',border: '2px solid rgba(79, 156, 255, 0.22)',color: '#4f9cff',padding: '8px 12px',borderRadius: '6px',cursor: 'pointer'}} >Back</button>
@@ -676,7 +676,7 @@ export default function AdminEdit() {
       <div className="admin-dashboard" style={{boxSizing: 'border-box',fontFamily: 'Inter, Segoe UI, Roboto, Arial, sans-serif',background: '#221636',color: '#e6eef8'}}>
         <nav className="navbar" style={{display: 'flex',justifyContent: 'space-between',alignItems: 'center',padding: '14px 20px',background: 'rgba(255, 255, 255, 0.03)',borderBottom: '1px solid rgba(255, 255, 255, 0.04)'}}>
           <div className="nav-left" style={{display: 'flex',alignItems: 'center',gap: '18px'}}>
-            <a className="brand" href="/admin-dashboard" style={{fontWeight: '700',textDecoration: 'none',fontSize: '18px',color:'#4f9cff'}}>MyQuiz Admin</a>
+            <a className="brand" onClick={() => navigate('/admin-dashboard')} style={{fontWeight: '700',textDecoration: 'none',fontSize: '18px',color:'#4f9cff',cursor: 'pointer'}}>MyQuiz Admin</a>
           </div>
           <div className="nav-right">
             <button className="btn" onClick={() => navigate('/admin-dashboard')} style={{background: 'transparent',border: '2px solid rgba(79, 156, 255, 0.22)',color: '#4f9cff',padding: '8px 12px',borderRadius: '6px',cursor: 'pointer'}} >Back</button>
@@ -748,7 +748,7 @@ export default function AdminEdit() {
     <div className="admin-dashboard" style={{boxSizing: 'border-box',fontFamily: 'Inter, Segoe UI, Roboto, Arial, sans-serif',background: '#221636',color: '#e6eef8'}}>
       <nav className="navbar" style={{display: 'flex',justifyContent: 'space-between',alignItems: 'center',padding: '14px 20px',background: 'rgba(255, 255, 255, 0.03)',borderBottom: '1px solid rgba(255, 255, 255, 0.04)'}}>
         <div className="nav-left" style={{display: 'flex',alignItems: 'center',gap: '18px'}}>
-          <a className="brand" href="/admin-dashboard" style={{fontWeight: '700',textDecoration: 'none',fontSize: '18px',color:'#4f9cff'}}>MyQuiz Admin</a>
+          <a className="brand" onClick={() => navigate('/admin-dashboard')} style={{fontWeight: '700',textDecoration: 'none',fontSize: '18px',color:'#4f9cff',cursor: 'pointer'}}>MyQuiz Admin</a>
         </div>
         <div className="nav-right" >
           <button className="btn"  onClick={() => navigate('/admin-dashboard')} style={{background: 'transparent',border: '2px solid rgba(79, 156, 255, 0.22)',color: '#4f9cff',padding: '8px 12px',borderRadius: '6px',cursor: 'pointer'}}>Back</button>
@@ -812,3 +812,4 @@ export default function AdminEdit() {
     </div>
   )
 }
+

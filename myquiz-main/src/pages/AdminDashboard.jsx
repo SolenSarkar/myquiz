@@ -64,13 +64,13 @@ export default function AdminDashboard() {
     <div className="admin-dashboard" style={{ boxSizing: 'border-box', fontFamily: 'Inter, Segoe UI, Roboto, Arial, sans-serif', background: '#221636', color: '#e6eef8' }}>
       <nav className="navbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', background: 'rgba(255, 255, 255, 0.03)', borderBottom: '1px solid rgba(255, 255, 255, 0.04)' }}>
         <div className="nav-left" style={{ display: 'flex', alignItems: 'center', gap: '18px' }}>
-          <a className="brand" href="#home" style={{ fontWeight: '700', textDecoration: 'none', fontSize: '18px', color: '#4f9cff' }}>
+          <a className="brand" onClick={() => navigate('/admin-dashboard')} style={{ fontWeight: '700', textDecoration: 'none', fontSize: '18px', color: '#4f9cff', cursor: 'pointer' }}>
             MyQuiz Admin
           </a>
           <div className="nav-links">
-            <a href="#home">Home</a>
-            <a href="/admin-edit">Edit</a>
-            <a href="/admin-scores">Scores</a>
+            <a onClick={() => navigate('/admin-dashboard')} style={{ cursor: 'pointer' }}>Home</a>
+            <a onClick={() => navigate('/admin-edit')} style={{ cursor: 'pointer' }}>Edit</a>
+            <a onClick={() => navigate('/admin-scores')} style={{ cursor: 'pointer' }}>Scores</a>
           </div>
         </div>
         <div className="nav-right">
@@ -85,10 +85,10 @@ export default function AdminDashboard() {
           <h1 style={{ fontSize: '28px', marginBottom: '8px', color: '#e6eef8' }}>Welcome, Admin</h1>
           <p style={{ color: '#9aa3b2', marginBottom: '16px' }}>Use the links in the navigation to manage quizzes and view scores.</p>
           <div className="actions" style={{ display: 'inline-block', marginRight: '10px', padding: '10px 16px', borderRadius: '8px', textDecoration: 'none' }}>
-            <a href="/admin-edit" className="primary" style={{ background: '#4f9cff', color: '#07102b' }}>
+            <a onClick={() => navigate('/admin-edit')} className="primary" style={{ background: '#4f9cff', color: '#07102b', cursor: 'pointer' }}>
               Go to Edit
             </a>
-            <a href="/admin-scores" className="secondary" style={{ background: 'transparent', color: '#4f9cff', border: '2px solid rgba(79, 156, 255, 0.12)' }}>
+            <a onClick={() => navigate('/admin-scores')} className="secondary" style={{ background: 'transparent', color: '#4f9cff', border: '2px solid rgba(79, 156, 255, 0.12)', cursor: 'pointer' }}>
               View Scores
             </a>
           </div>
@@ -98,14 +98,14 @@ export default function AdminDashboard() {
           <div className="card" style={{ background: '#022b45', padding: '18px', borderRadius: '10px', boxShadow: '0 6px 20px rgba(2, 6, 23, 0.6)' }}>
             <h3 style={{ marginBottom: '8px', color: '#e6eef8' }}>Create / Edit Quizzes</h3>
             <p style={{ color: '#7b8593', marginBottom: '12px' }}>Manage quizzes, add questions, and configure timing.</p>
-            <a href="/admin-edit" className="btn-link" style={{ display: 'inline-block', padding: '8px 12px', background: 'transparent', border: '2px solid rgba(255, 255, 255, 0.04)', borderRadius: '8px', textDecoration: 'none', color: '#4f9cff' }}>
+            <a onClick={() => navigate('/admin-edit')} className="btn-link" style={{ display: 'inline-block', padding: '8px 12px', background: 'transparent', border: '2px solid rgba(255, 255, 255, 0.04)', borderRadius: '8px', textDecoration: 'none', color: '#4f9cff', cursor: 'pointer' }}>
               Open Editor
             </a>
           </div>
           <div className="card" style={{ background: '#022b45', padding: '18px', borderRadius: '10px', boxShadow: '0 6px 20px rgba(2, 6, 23, 0.6)' }}>
             <h3 style={{ marginBottom: '8px', color: '#e6eef8' }}>Manage Users</h3>
             <p style={{ color: '#7b8593', marginBottom: '12px' }}>Update admin email and password credentials.</p>
-            <a href="/admin-manage-user" className="btn-link" style={{ display: 'inline-block', padding: '8px 12px', background: 'transparent', border: '2px solid rgba(255, 255, 255, 0.04)', borderRadius: '8px', textDecoration: 'none', color: '#4f9cff' }}>
+            <a onClick={() => navigate('/admin-manage-user')} className="btn-link" style={{ display: 'inline-block', padding: '8px 12px', background: 'transparent', border: '2px solid rgba(255, 255, 255, 0.04)', borderRadius: '8px', textDecoration: 'none', color: '#4f9cff', cursor: 'pointer' }}>
               Manage Users
             </a>
           </div>
@@ -161,11 +161,12 @@ export default function AdminDashboard() {
           {scores.length > 5 && (
             <div style={{ marginTop: '16px', textAlign: 'center' }}>
               <a 
-                href="/admin-scores" 
+                onClick={() => navigate('/admin-scores')}
                 style={{ 
                   color: '#4f9cff', 
                   textDecoration: 'none',
-                  fontSize: '0.95rem'
+                  fontSize: '0.95rem',
+                  cursor: 'pointer'
                 }}
               >
                 View all {scores.length} scores →
