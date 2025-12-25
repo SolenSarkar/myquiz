@@ -1,13 +1,14 @@
 import axios from 'axios'
 
-// Production backend URL
+// Production backend URL - hardcoded fallback for Vercel deployment
 const API_BASE = import.meta.env.VITE_API_BASE || 'https://myquiz-1-zvjx.onrender.com/api'
 
 // Debug logging for deployment troubleshooting
 console.log('API Configuration:')
-console.log('- VITE_API_BASE:', import.meta.env.VITE_API_BASE)
+console.log('- VITE_API_BASE env var:', import.meta.env.VITE_API_BASE)
 console.log('- Using API_BASE:', API_BASE)
 console.log('- Environment:', import.meta.env.MODE)
+console.log('- Full backend URL:', API_BASE)
 
 const client = axios.create({
   baseURL: API_BASE,
