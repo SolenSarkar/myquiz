@@ -22,8 +22,15 @@ export default function AdminIndex() {
     setLoading(true)
     
     try {
+      // Log attempt for debugging
+      console.log('Attempting admin login...')
+      console.log('Email:', email)
+      console.log('API Base:', client.defaults.baseURL)
+      
       // Authenticate with backend API
       const response = await client.post('/auth/admin-login', { email, password })
+      
+      console.log('Login response:', response.data)
       
       if (response.data && response.data.authenticated) {
         // Store JWT token and auth flag
@@ -31,6 +38,7 @@ export default function AdminIndex() {
         sessionStorage.setItem('myquiz_admin_auth', '1')
         sessionStorage.setItem('admin_email', response.data.email)
         
+        console.log('Login successful, navigating to dashboard...')
         // Navigate to admin dashboard
         navigate('/admin-dashboard')
       } else {
@@ -38,7 +46,12 @@ export default function AdminIndex() {
       }
     } catch (err) {
       console.error('Admin login error:', err)
-      setError(err.response?.data?.error || 'Failed to authenticate. Please check your credentials.')
+      console.error('Error details:', {
+        message: err.message,
+        response: err.response?.data,
+        status: err.response?.status
+      })
+      setError(err.response?.data?.error || err.message || 'Failed to authenticate. Please check your credentials.')
     } finally {
       setLoading(false)
     }
