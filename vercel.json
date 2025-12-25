@@ -1,8 +1,7 @@
 {
-  "buildCommand": "cd myquiz-main && npm install && npm run build",
+  "buildCommand": "npm run build --prefix myquiz-main",
   "outputDirectory": "myquiz-main/dist",
   "installCommand": "npm install --prefix myquiz-main",
-  "framework": "vite",
   "rewrites": [
     {
       "source": "/(.*)",
