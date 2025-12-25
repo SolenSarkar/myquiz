@@ -2,10 +2,13 @@
   "buildCommand": "cd myquiz-main && npm install && npm run build",
   "outputDirectory": "myquiz-main/dist",
   "installCommand": "npm install --prefix myquiz-main",
-  "rewrites": [
+  "routes": [
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ]
 }
