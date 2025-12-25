@@ -17,5 +17,6 @@ export default defineConfig({
         manualChunks: undefined
       }
     }
-  }
+  },
+  publicDir: 'public'
 })
