@@ -1,5 +1,11 @@
 {
   "buildCommand": "cd myquiz-main && npm install && npm run build",
   "outputDirectory": "myquiz-main/dist",
-  "installCommand": "npm install --prefix myquiz-main"
+  "installCommand": "npm install --prefix myquiz-main",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
 }
