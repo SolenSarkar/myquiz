@@ -77,7 +77,7 @@ export default function Header({ user, onSignOut }) {
             <li><Link to="/">Home</Link></li>
             <li><Link to="/quiz">Quiz</Link></li>
             <li>
-              <a href="/admin-index" target="_blank" rel="noopener noreferrer" className="btn small">AdminLogin</a>
+              <Link to="/admin-index" className="btn small">Admin Login</Link>
             </li>
             {user ? null : (<li><Link to="/signin" className="btn small">Sign In</Link></li>)}
           </ul>
