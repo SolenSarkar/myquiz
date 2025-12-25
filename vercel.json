@@ -1,15 +1,5 @@
 {
-  "buildCommand": "npm run build --prefix myquiz-main",
+  "buildCommand": "cd myquiz-main && npm install && npm run build",
   "outputDirectory": "myquiz-main/dist",
-  "installCommand": "npm install --prefix myquiz-main",
-  "routes": [
-    {
-      "src": "/assets/(.*)",
-      "dest": "/assets/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
-  ]
+  "installCommand": "npm install --prefix myquiz-main"
 }
