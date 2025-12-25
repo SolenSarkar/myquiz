@@ -2,7 +2,7 @@
 
 // Quick script to wake up Render backend and test connectivity
 
-const BACKEND_URL = 'https://myquiz-zvai.onrender.com'
+const BACKEND_URL = 'https://myquiz-1-zvjx.onrender.com'
 
 async function wakeUpBackend() {
   console.log('\n🔄 Attempting to wake up Render backend...')

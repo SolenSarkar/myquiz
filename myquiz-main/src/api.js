@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 // Production backend URL
-const API_BASE = import.meta.env.VITE_API_BASE || 'https://myquiz-zvai.onrender.com/api'
+const API_BASE = import.meta.env.VITE_API_BASE || 'https://myquiz-1-zvjx.onrender.com/api'
 
 // Debug logging for deployment troubleshooting
 console.log('API Configuration:')

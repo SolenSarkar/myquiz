@@ -25,7 +25,7 @@ export default function Diagnostic() {
 
       // Test backend connectivity
       try {
-        const response = await fetch('https://myquiz-zvai.onrender.com/api/health')
+        const response = await fetch('https://myquiz-1-zvjx.onrender.com/api/health')
         results.backendHealth = {
           status: response.status,
           ok: response.ok,

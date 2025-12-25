@@ -3,7 +3,7 @@
 // Backend API Test Script
 // Run with: node backend/test-api.js
 
-const API_BASE = process.env.API_BASE || 'https://myquiz-zvai.onrender.com'
+const API_BASE = process.env.API_BASE || 'https://myquiz-1-zvjx.onrender.com'
 
 async function testEndpoint(method, path, data = null) {
   const url = `${API_BASE}${path}`
