@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Vercel API Test</title>
+</head>
+<body>
+    <h1>Testing Vercel Environment Variables</h1>
+    <div id="result"></div>
+    <script>
+        const apiBase = 'https://myquiz-1-zvjx.onrender.com/api';
+        const resultDiv = document.getElementById('result');
+        
+        resultDiv.innerHTML = '<p>Testing backend API...</p>';
+        
+        // Test 1: Health check
+        fetch('https://myquiz-1-zvjx.onrender.com/api/health')
+            .then(r => r.json())
+            .then(data => {
+                resultDiv.innerHTML += `<p>✓ Health Check: ${JSON.stringify(data)}</p>`;
+                
+                // Test 2: Get quizzes
+                return fetch(apiBase + '/quizzes');
+            })
+            .then(r => r.json())
+            .then(data => {
+                resultDiv.innerHTML += `<p>✓ Quizzes: Found ${data.length} quizzes</p>`;
+                
+                // Test 3: Admin login
+                return fetch(apiBase + '/auth/admin-login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: 'admin@example.com', password: 'admin123' })
+                });
+            })
+            .then(r => r.json())
+            .then(data => {
+                resultDiv.innerHTML += `<p>✓ Admin Login: ${data.authenticated ? 'Success' : 'Failed'}</p>`;
+            })
+            .catch(err => {
+                resultDiv.innerHTML += `<p>✗ Error: ${err.message}</p>`;
+            });
+    </script>
+</body>
+</html>
