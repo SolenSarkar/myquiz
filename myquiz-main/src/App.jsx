@@ -44,7 +44,10 @@ export default function App() {
       <main>
         <Routes>
           <Route path="/" element={<Landing />} />
-          <Route path="/admin-index" element={<AdminIndex />} />
+          <Route path="/admin-index" element={ 
+            <ProtectedRoute>
+            <AdminIndex />
+          </ProtectedRoute>} />
           <Route path="/admin-dashboard" element={
             <ProtectedRoute>
               <AdminDashboard />
