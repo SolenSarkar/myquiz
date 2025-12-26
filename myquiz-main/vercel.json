@@ -1,0 +1,15 @@
+{
+  "rewrites": [
+    { "source": "/admin-index", "destination": "/index.html" },
+    { "source": "/admin-dashboard", "destination": "/index.html" },
+    { "source": "/admin-edit", "destination": "/index.html" },
+    { "source": "/admin-manage-user", "destination": "/index.html" },
+    { "source": "/admin-scores", "destination": "/index.html" },
+    { "source": "/admin-login", "destination": "/index.html" },
+    { "source": "/quiz", "destination": "/index.html" },
+    { "source": "/signin", "destination": "/index.html" },
+    { "source": "/score-history", "destination": "/index.html" },
+    { "source": "/diagnostic", "destination": "/index.html" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
