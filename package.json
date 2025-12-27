@@ -10,5 +10,8 @@
     "dev:frontend": "cd myquiz-main && npm run dev",
     "dev:backend": "cd myquiz-main/backend && npm run dev",
     "start:backend": "cd myquiz-main/backend && npm start"
+  },
+  "dependencies": {
+    "@vercel/speed-insights": "^1.3.1"
   }
 }
