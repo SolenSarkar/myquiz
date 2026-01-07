@@ -34,7 +34,7 @@ body {
 }
 
 .landing-brand {
-    font-weight: 800;
+    font-weight: 800; 
     color: var(--accent);
     font-size: 22px;
     text-decoration: none
