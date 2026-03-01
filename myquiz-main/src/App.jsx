@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
+import { SpeedInsights } from '@vercel/speed-insights/react'
 import AdminDashboard from './pages/AdminDashboard'
 import AdminEdit from './pages/AdminEdit'
 import AdminIndex from './pages/AdminIndex'
@@ -76,6 +77,7 @@ export default function App() {
       {!isAdminRoute && <Footer />}
 
       <AdminLogin show={showAdminModal} onClose={() => setShowAdminModal(false)} />
+      <SpeedInsights />
     </div>
   )
 }
